@@ -9,4 +9,5 @@ Howto Use:
 
 * Get the latest webrtc trunk 
 * Put the content from libjingle_examples_extension.txt to libjingle_examples.gyp
+* Copy the folder talk to webrtc/trunk/talk
 * Build the source, gclient sync, gclient runhooks
