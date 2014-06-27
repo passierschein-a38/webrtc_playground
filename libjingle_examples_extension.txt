@@ -1,0 +1,16 @@
+
+	[ 'OS=="win"', {
+      'targets': [
+        {
+          'target_name': 'native_to_browser',
+          'type': 'executable',
+          'sources': [
+            'examples/native_to_browser/main.cc',       
+          ],
+          'dependencies': [
+            '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
+            'libjingle.gyp:libjingle_peerconnection',
+          ],
+        },  # target native_to_browser
+      ], # targets
+    }],  # OS=="win"
