@@ -1,12 +1,26 @@
-
 	[ 'OS=="win"', {
       'targets': [
         {
           'target_name': 'native_to_browser',
           'type': 'executable',
-          'sources': [
-            'examples/native_to_browser/main.cc',       
+          'sources': [          
+		    'examples/native_to_browser/main.cc',
+            'examples/native_to_browser/mediastream.cc',
+            'examples/native_to_browser/mediastream.h',
+            'examples/native_to_browser/adapter/peerconnection.cc',
+            'examples/native_to_browser/adapter/peerconnection.h',
+            'examples/native_to_browser/observer/setsessiondescription.h',   
+		    'examples/native_to_browser/observer/setsessiondescription.cc',
+            'examples/native_to_browser/observer/createsessiondescription.h',
+            'examples/native_to_browser/observer/createsessiondescription.cc',
+            'examples/native_to_browser/observer/peerconnection.h',
+            'examples/native_to_browser/observer/peerconnection.cc',
           ],
+		#  'msvs_settings': {
+         #       'VCLinkerTool': {
+          #       'SubSystem': '2',  # Windows
+           #     },
+		  #},
           'dependencies': [
             '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
             'libjingle.gyp:libjingle_peerconnection',
