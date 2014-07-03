@@ -10,6 +10,7 @@ MediaStream::MediaStream(const std::string& id, const talk_base::scoped_refptr<w
 	ASSERT(factory.get());
 	_factory = factory;
 	_id = id;
+	_media_stream = _factory->CreateLocalMediaStream("local_media");	
 }
 
 MediaStream::~MediaStream()
@@ -41,12 +42,6 @@ void MediaStream::removeAllTracks()
 
 bool MediaStream::addAudio( const std::string& id, const webrtc::MediaConstraintsInterface* constraints)
 {
-	ASSERT(_factory.get());
-
-	if (!_media_stream.get()){
-		_media_stream = _factory->CreateLocalMediaStream("local_media");
-	}
-
 	ASSERT(_media_stream.get());
 	
 	talk_base::scoped_refptr<webrtc::AudioSourceInterface> audio_source = _factory->CreateAudioSource(constraints);
@@ -71,15 +66,8 @@ void MediaStream::removeAudio(const std::string& id)
 }
 
 bool MediaStream::addVideo(const std::string& id, const webrtc::MediaConstraintsInterface* constraints)
-{
-	ASSERT(_factory.get());
-
-	if (!_media_stream.get()){
-		_media_stream = _factory->CreateLocalMediaStream("local_media");
-	}
-
+{		
 	ASSERT(_media_stream.get());
-
 
 	talk_base::scoped_ptr<cricket::DeviceManagerInterface> dev_manager(
 			cricket::DeviceManagerFactory::Create());
@@ -127,7 +115,6 @@ void MediaStream::removeVideo(const std::string& id)
 	if (video_track.get()){
 		_media_stream->RemoveTrack(video_track);
 	}
-
 }
 
 std::string MediaStream::id() const

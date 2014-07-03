@@ -54,6 +54,8 @@ PeerConnectionPtr PeerConnection::create(const webrtc::PeerConnectionInterface::
 	pc->local_media_stream = new talk_base::RefCountedObject<n2b::MediaStream>( "local_media", pc->_peer_connection_factory );
 	ASSERT(pc->local_media_stream.get());
 	
+	ASSERT(pc->_peer_connection->AddStream(pc->local_media_stream->_media_stream, constraints));
+
 	//-- connect signals and slots
 	ASSERT(pc->setupSignals());
 	
@@ -222,7 +224,7 @@ void PeerConnection::onSessionDescription(webrtc::SessionDescriptionInterface* o
 
 	std::cout << "SetLocalDescription" << std::endl;
 	_peer_connection->SetLocalDescription(_set_local_session_observer.get(), offer);
-
+	
 	Json::StyledWriter writer;
 	Json::Value json;
 	json[kSessionDescriptionTypeName] = offer->type();

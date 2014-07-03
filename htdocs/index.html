@@ -20,7 +20,7 @@ var local_ice = [];
 var pc_constraints = {
 		mandatory: {
 			OfferToReceiveAudio: true,
-			OfferToReceiveVideo: true
+			OfferToReceiveVideo: false
 		}
 	};
 
@@ -44,10 +44,13 @@ pc.onicecandidate = function(event) {
   local_ice.push( event.candidate );
 };
 
+pc.onaddstream = function(obj) {
+	alert('on remote stream' );  
+}
 
 var pc_media_options = {
 			audio: true,
-			video: true
+			video: false
 	};
 
 var local_stream = 0;
