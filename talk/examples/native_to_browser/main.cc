@@ -24,8 +24,11 @@ int main(int argc, char** argv)
 	talk_base::ThreadManager::Instance()->SetCurrentThread(&w32_thread);
 	talk_base::InitializeSSL();
 
-	//-- Media Constrains
-	webrtc::MediaConstraintsInterface* media_constrains = NULL;
+	//-- Media Constraints
+	n2b::Constraints media_constraints;
+	media_constraints.AddMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveAudio, webrtc::MediaConstraintsInterface::kValueTrue);
+	media_constraints.AddMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveVideo, webrtc::MediaConstraintsInterface::kValueTrue);
+	media_constraints.AddOptional(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp, webrtc::MediaConstraintsInterface::kValueTrue);
 
 	//-- Ice Server Setup
 	webrtc::PeerConnectionInterface::IceServer ice_server;
@@ -33,17 +36,23 @@ int main(int argc, char** argv)
 
 	webrtc::PeerConnectionInterface::RTCConfiguration rtc_config;
 	rtc_config.servers.push_back( ice_server );
-
-	//-- Media Constraints
-	n2b::Constraints constraints;
-	constraints.AddMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveAudio, webrtc::MediaConstraintsInterface::kValueTrue);
-	constraints.AddOptional(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp, webrtc::MediaConstraintsInterface::kValueTrue);	
-
+	
 	//-- Create peer connection factory
-	n2b::adapter::PeerConnectionPtr pc = n2b::adapter::PeerConnection::create(rtc_config, &constraints);
+	n2b::adapter::PeerConnectionPtr pc = n2b::adapter::PeerConnection::create(rtc_config, &media_constraints);
+	
+	n2b::Constraints video_constraints;
+	video_constraints.AddMandatory(webrtc::MediaConstraintsInterface::kMinHeight, 240);
+	video_constraints.AddMandatory(webrtc::MediaConstraintsInterface::kMinWidth, 320);
+	video_constraints.AddOptional(webrtc::MediaConstraintsInterface::kMinHeight, 480);
+	video_constraints.AddMandatory(webrtc::MediaConstraintsInterface::kMinWidth, 640);
+	
+	const std::string video_track = "videoV0";
+	pc->local_media_stream->addVideo(video_track, &video_constraints);
+
+	n2b::Constraints audio_constraints;
 
 	const std::string audio_track = "audioV0";
-	pc->local_media_stream->addAudio(audio_track, media_constrains);
+	pc->local_media_stream->addAudio(audio_track, &audio_constraints);
 		
 	std::string cmd;
 
@@ -56,7 +65,7 @@ int main(int argc, char** argv)
 		std::cin >> cmd;
 
 		if (cmd == "create_offer"){
-			pc->createOffer(media_constrains);
+			pc->createOffer(&media_constraints);
 		}
 
 		if (cmd == "handle_answer"){

@@ -28,7 +28,7 @@ void PeerConnection::OnAddStream(webrtc::MediaStreamInterface* stream)
 
 void PeerConnection::OnRemoveStream(webrtc::MediaStreamInterface* stream)
 {
-
+	 
 }
 
 void PeerConnection::OnDataChannel(webrtc::DataChannelInterface* data_channel)

@@ -214,6 +214,7 @@ void PeerConnection::onSetRemoteDescription() //called when successfully setup t
 
 		_peer_connection->AddIceCandidate(ice);
 	}
+	
 }
 
 void PeerConnection::onSessionDescription(webrtc::SessionDescriptionInterface* offer)

@@ -24,7 +24,7 @@ var pc_constraints = {
 		}
 	};
 
-var pc_config = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};	
+var pc_config = {"iceServers": [{"url": "stun:173.194.70.127:19302"}]};	
 
 var constraints = {
 				mandatory: {DtlsSrtpKeyAgreement: true}
@@ -44,13 +44,20 @@ pc.onicecandidate = function(event) {
   local_ice.push( event.candidate );
 };
 
-pc.onaddstream = function(obj) {
-	alert('on remote stream' );  
+pc.onaddstream = function(event) {	
+	var native_stream = document.getElementById( 'native_stream' );
+	attachMediaStream( native_stream, event.stream );
+}
+
+pc.onremovestream = function(event) {	
+	var native_stream = document.getElementById( 'native_stream' );
+	native_stream.src = '';	
+	nat
 }
 
 var pc_media_options = {
 			audio: true,
-			video: false
+			video: true
 	};
 
 var local_stream = 0;
@@ -77,6 +84,15 @@ function error( what ){
 </script>
 
 <table>
+<tr>
+<td>
+	<video id="native_stream" controls  autoplay></video> 
+</td>
+<td>
+	<video id="browser_stream" controls  autoplay></video> 
+</td>
+</tr>
+
 
 <tr>
 <td>
@@ -105,17 +121,22 @@ function error( what ){
 	</div>
 </td>
 </tr>
+	
 </table>	
 
 <script type="text/javascript">
 
 getUserMedia(pc_media_options, function (stream) {			
+			
 			local_stream = stream;			
 			pc.addStream( local_stream );		
 			
+			var browser_stream = document.getElementById( 'browser_stream' );
+			attachMediaStream( browser_stream, stream );
+			
 			var offer = new RTCSessionDescription( JSON.parse( $('#native_offer').val() ) );
 		
-			 pc.setRemoteDescription( offer, function() {
+			 pc.setRemoteDescription( offer, function() {			 			 
 				pc.createAnswer(function(answer) {
 				
 					var json = JSON.stringify( answer );
