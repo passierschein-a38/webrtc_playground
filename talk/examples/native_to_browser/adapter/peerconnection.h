@@ -8,6 +8,7 @@
 #include "talk/examples/native_to_browser/observer/createsessiondescription.h"
 #include "talk/examples/native_to_browser/observer/setsessiondescription.h"
 #include "talk/examples/native_to_browser/mediastream.h"
+#include "talk/examples/native_to_browser/constraints.h"
 
 namespace n2b{
 	namespace adapter{
@@ -28,6 +29,7 @@ public:
 	MediaStreamPtr local_media_stream;
 
 	void createOffer(webrtc::MediaConstraintsInterface* constraints);
+	void handleAnswer();
 
 private:
 	
@@ -40,13 +42,17 @@ private:
 
 	//-- observer::CreateSessionDescription ( offer )
 	void onSessionDescription(webrtc::SessionDescriptionInterface*);
+
+	//-- observer::SetSessionDescription
+	void onSetRemoteDescription(); //called when successfully setup the remote session description
 		
 	talk_base::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _peer_connection_factory;
 	talk_base::scoped_refptr<webrtc::PeerConnectionInterface> _peer_connection;
 
 	talk_base::scoped_refptr<observer::PeerConnection> _peer_connection_observer;
 	talk_base::scoped_refptr<observer::CreateSessionDescription> _create_session_observer;
-	talk_base::scoped_refptr<observer::SetSessionDescription> _set_session_observer;	
+	talk_base::scoped_refptr<observer::SetSessionDescription> _set_local_session_observer;	
+	talk_base::scoped_refptr<observer::SetSessionDescription> _set_remote_session_observer;
 
 	std::vector<std::string> local_ice;
 };

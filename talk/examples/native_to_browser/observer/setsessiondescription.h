@@ -14,8 +14,8 @@ public:
 	virtual void OnSuccess();
 	virtual void OnFailure(const std::string& error);
 
-	sigslot::signal0<> success;
-	sigslot::signal1<std::string> failed;
+	sigslot::signal0<> onSuccess;
+	sigslot::signal1<std::string> onFailure;
 
 }; //end class SetSessionDescription
 

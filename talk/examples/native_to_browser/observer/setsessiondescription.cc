@@ -4,11 +4,11 @@ namespace n2b {
 	namespace observer{
 
 	void SetSessionDescription::OnSuccess(){
-		success.emit();
+		onSuccess.emit();
 	}
 
 	void SetSessionDescription::OnFailure(const std::string& error){
-		failed.emit(error);
+		onFailure.emit(error);
 	}
 		
 	} //end namespace observer

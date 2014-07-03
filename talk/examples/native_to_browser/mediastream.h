@@ -1,5 +1,5 @@
-#ifndef NATIVE_TO_BROWSER_H 
-#define NATIVE_TO_BROWSER_H 1
+#ifndef NATIVE_TO_BROWSER_MEIDA_STREAM_H 
+#define NATIVE_TO_BROWSER_MEIDA_STREAM_H 1
 
 #include "talk/app/webrtc/mediastreaminterface.h"
 #include "talk/app/webrtc/peerconnectioninterface.h"
@@ -37,4 +37,4 @@ private:
 
 }//end namespace n2b
 
-#endif //NATIVE_TO_BROWSER_H 
+#endif //NATIVE_TO_BROWSER_MEIDA_STREAM_H 
