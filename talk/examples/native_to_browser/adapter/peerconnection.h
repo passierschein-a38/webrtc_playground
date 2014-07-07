@@ -9,6 +9,7 @@
 #include "talk/examples/native_to_browser/observer/setsessiondescription.h"
 #include "talk/examples/native_to_browser/mediastream.h"
 #include "talk/examples/native_to_browser/constraints.h"
+#include "talk/examples/native_to_browser/transport.h"
 
 namespace n2b{
 	namespace adapter{
@@ -23,14 +24,15 @@ public:
 	
 	virtual ~PeerConnection();
 
-	static PeerConnectionPtr create(const webrtc::PeerConnectionInterface::RTCConfiguration cfg,
-		const webrtc::MediaConstraintsInterface* constraints);
+	static PeerConnectionPtr create(n2b::TransportPtr& transport,
+									webrtc::PeerConnectionInterface::RTCConfiguration cfg,
+									const webrtc::MediaConstraintsInterface* constraints);
 
 	MediaStreamPtr local_media_stream;
 
 	void createOffer(webrtc::MediaConstraintsInterface* constraints);
-	void handleAnswer();
-
+	void createAnswer(webrtc::MediaConstraintsInterface* constraints);
+	
 private:
 	
 	bool setupSignals();
@@ -43,8 +45,9 @@ private:
 	//-- observer::CreateSessionDescription ( offer )
 	void onSessionDescription(webrtc::SessionDescriptionInterface*);
 
-	//-- observer::SetSessionDescription
-	void onSetRemoteDescription(); //called when successfully setup the remote session description
+	//-- transport events
+	void onRemoteIceCandidate(webrtc::IceCandidateInterface*);
+	void onRemoteSessionDescription(webrtc::SessionDescriptionInterface* desc);
 		
 	talk_base::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _peer_connection_factory;
 	talk_base::scoped_refptr<webrtc::PeerConnectionInterface> _peer_connection;
@@ -54,7 +57,7 @@ private:
 	talk_base::scoped_refptr<observer::SetSessionDescription> _set_local_session_observer;	
 	talk_base::scoped_refptr<observer::SetSessionDescription> _set_remote_session_observer;
 
-	std::vector<std::string> local_ice;
+	TransportPtr _transport;
 };
 
 	}

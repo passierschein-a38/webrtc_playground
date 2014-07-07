@@ -1,10 +1,14 @@
-[ 'OS=="win"', {
+
+	[ 'OS=="win"', {
       'targets': [
         {
           'target_name': 'native_to_browser',
           'type': 'executable',
           'sources': [          
 		    'examples/native_to_browser/main.cc',
+			'examples/native_to_browser/transport.h',
+			'examples/native_to_browser/file_transport.h',
+			'examples/native_to_browser/file_transport.cc',
             'examples/native_to_browser/mediastream.cc',
             'examples/native_to_browser/mediastream.h',
 			'examples/native_to_browser/constraints.h',

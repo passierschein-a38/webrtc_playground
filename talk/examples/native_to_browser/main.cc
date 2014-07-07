@@ -1,6 +1,8 @@
 
 #include <iostream>
+#include <fstream>
 
+#include "talk/examples/native_to_browser/file_transport.h"
 #include "talk/examples/native_to_browser/mediastream.h"
 #include "talk/examples/native_to_browser/adapter/peerconnection.h"
 #include "talk/examples/native_to_browser/observer/setsessiondescription.h"
@@ -14,6 +16,10 @@
 #include "talk/base/ssladapter.h"
 #include "talk/base/win32socketinit.h"
 #include "talk/base/win32socketserver.h"
+#include "talk/base/json.h"
+
+void set_remote_description(n2b::adapter::PeerConnectionPtr& pc);
+void read_offer_create_answer(n2b::adapter::PeerConnectionPtr& pc);
 
 int main(int argc, char** argv)
 {
@@ -37,8 +43,12 @@ int main(int argc, char** argv)
 	webrtc::PeerConnectionInterface::RTCConfiguration rtc_config;
 	rtc_config.servers.push_back( ice_server );
 	
-	//-- Create peer connection factory
-	n2b::adapter::PeerConnectionPtr pc = n2b::adapter::PeerConnection::create(rtc_config, &media_constraints);
+	const std::string local_id = "native";
+	const std::string remote_id = "browser";
+
+	//-- Create peer connection factory	
+	n2b::FileTransportPtr pFileTransport = new talk_base::RefCountedObject<n2b::FileTransport>("e:/signaling/", local_id, remote_id);
+	n2b::adapter::PeerConnectionPtr pc = n2b::adapter::PeerConnection::create(n2b::TransportPtr(pFileTransport), rtc_config, &media_constraints);
 	
 	n2b::Constraints video_constraints;
 	video_constraints.AddMandatory(webrtc::MediaConstraintsInterface::kMinHeight, 240);
@@ -53,23 +63,29 @@ int main(int argc, char** argv)
 
 	const std::string audio_track = "audioV0";
 	pc->local_media_stream->addAudio(audio_track, &audio_constraints);
-		
+	
 	std::string cmd;
 
 	while (cmd != "x"){
 
-		std::cout << "create_offer" << std::endl;
-		std::cout << "handle_answer" << std::endl;
+		std::cout << "o - create a offer" << std::endl; 
+		std::cout << "a - create a answer" << std::endl;
+		std::cout << "rd - set remote description" << std::endl;
 		std::cout << "x - exit" << std::endl;
 
 		std::cin >> cmd;
 
-		if (cmd == "create_offer"){
+		if (cmd == "o"){
 			pc->createOffer(&media_constraints);
 		}
 
-		if (cmd == "handle_answer"){
-			pc->handleAnswer();
+		if (cmd == "rd"){
+			pFileTransport->readRemoteSessionDescription();
+			pFileTransport->readRemoteIceCandidates();
+		}
+		
+		if (cmd == "a"){
+			pc->createAnswer(&media_constraints);
 		}
 
 		if (cmd == "x"){

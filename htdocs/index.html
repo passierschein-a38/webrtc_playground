@@ -24,7 +24,7 @@ var pc_constraints = {
 		}
 	};
 
-var pc_config = {"iceServers": [{"url": "stun:173.194.70.127:19302"}]};	
+var pc_config = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};	
 
 var constraints = {
 				mandatory: {DtlsSrtpKeyAgreement: true}
@@ -63,7 +63,7 @@ var pc_media_options = {
 var local_stream = 0;
 
 $.ajax({
-  url: "native_offer.php",
+  url: "native_desc.php",
   cache: false
 }).done(function( offer ) {
     $( "#native_offer" ).append( offer );
@@ -142,7 +142,7 @@ getUserMedia(pc_media_options, function (stream) {
 					var json = JSON.stringify( answer );
 					$('#browser_answer').val( json );
 					
-					$.post( "browser_answer.php", "q=" + json );		
+					$.post( "browser_desc.php", "q=" + json );		
 
 									
 					pc.setLocalDescription(new RTCSessionDescription(answer), function() {												
