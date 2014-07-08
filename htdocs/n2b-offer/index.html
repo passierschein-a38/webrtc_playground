@@ -3,12 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Native To Browser</title>	
 	<script type='text/javascript' src='jquery-1.11.1.js'></script>
-	<script type='text/javascript' src='adapter.js'></script>
-	<script type='text/javascript' src='base64.js'></script>
-
+	<script type='text/javascript' src='adapter.js'></script>	
 </head>
 
 <body>
@@ -24,7 +21,7 @@ var pc_constraints = {
 		}
 	};
 
-var pc_config = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};	
+var pc_config = {"iceServers": [{"url": "stun:173.194.70.127:19302"}]};	
 
 var constraints = {
 				mandatory: {DtlsSrtpKeyAgreement: true}
@@ -62,11 +59,16 @@ var pc_media_options = {
 
 var local_stream = 0;
 
+function laodNativeAnswer()
+{
+
 $.ajax({
   url: "native_desc.php",
   cache: false
 }).done(function( offer ) {
-    $( "#native_offer" ).append( offer );
+    $( "#native_desc" ).append( offer );
+	var desc = new RTCSessionDescription( JSON.parse( $('#native_desc').val() ) );
+	pc.setRemoteDescription( desc );
   });
 
 $.ajax({
@@ -74,9 +76,17 @@ $.ajax({
   cache: false
 }).done(function( ice ) {
     $( "#native_ice" ).append( ice );
+	
+	var arr = JSON.parse( ice );
+	
+	for( var i=0; i<arr.length; i++){
+	
+		var c = new RTCIceCandidate( JSON.parse( arr[i] ) );
+		pc.addIceCandidate( c ) ;
+	}
  });
  
- 
+ }
 
 function error( what ){
 	alert( what );
@@ -87,6 +97,9 @@ function error( what ){
 <tr>
 <td>
 	<video id="native_stream" controls  autoplay></video> 
+	
+	<input type="button" value="load native" onclick="laodNativeAnswer();"/>
+	
 </td>
 <td>
 	<video id="browser_stream" controls  autoplay></video> 
@@ -96,9 +109,9 @@ function error( what ){
 
 <tr>
 <td>
-	<p>Native Offer</p>
-	<div id="native_offer_div">
-		<textarea id="native_offer" rows="20" cols="60"></textarea>
+	<p>Native Answer</p>
+	<div id="native_answer_div">
+		<textarea id="native_desc" rows="20" cols="60"></textarea>
 	</div>
 </td>
 <td>
@@ -109,9 +122,9 @@ function error( what ){
 </td>
 </tr>
 <td>
-	<p>Browser Answer</p>
-	<div id="browser_answer_div">
-		<textarea id="browser_answer" rows="20" cols="60"></textarea>
+	<p>Browser Offer</p>
+	<div id="browser_offer_div">
+		<textarea id="browser_offer" rows="20" cols="60"></textarea>
 	</div>
 </td>
 <td>
@@ -133,30 +146,19 @@ getUserMedia(pc_media_options, function (stream) {
 			
 			var browser_stream = document.getElementById( 'browser_stream' );
 			attachMediaStream( browser_stream, stream );
-			
-			var offer = new RTCSessionDescription( JSON.parse( $('#native_offer').val() ) );
-		
-			 pc.setRemoteDescription( offer, function() {			 			 
-				pc.createAnswer(function(answer) {
-				
-					var json = JSON.stringify( answer );
-					$('#browser_answer').val( json );
-					
-					$.post( "browser_desc.php", "q=" + json );		
 
-									
-					pc.setLocalDescription(new RTCSessionDescription(answer), function() {												
-					
-						var remote_ice = JSON.parse( $('#native_ice' ).val() );
-						
-						for ( var i = 0; i < remote_ice.length; i = i + 1 ) {
-							var ice = new RTCIceCandidate(JSON.parse( remote_ice[ i ] ));
-							pc.addIceCandidate( ice );
-						}					
-					
-					}, error);
-				}, error);
-			}, error);
+		 pc.createOffer(function(offer) {
+			pc.setLocalDescription(new RTCSessionDescription(offer), function() {
+	
+				var json = JSON.stringify( offer );
+				$( "#browser_offer" ).append( json );
+				$.post( "browser_desc.php", "q=" + json );
+				
+	
+      // send the offer to a server to be forwarded to the friend you're calling.
+    }, error);
+  }, error);
+		
   
 		}, error);
   

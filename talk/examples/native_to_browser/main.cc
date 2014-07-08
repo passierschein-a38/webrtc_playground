@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 	pc->local_media_stream->addAudio(audio_track, &audio_constraints);
 	
 	std::string cmd;
-
+	
 	while (cmd != "x"){
 
 		std::cout << "o - create a offer" << std::endl; 
@@ -85,7 +85,9 @@ int main(int argc, char** argv)
 		}
 		
 		if (cmd == "a"){
+			pFileTransport->readRemoteSessionDescription();
 			pc->createAnswer(&media_constraints);
+			pFileTransport->readRemoteIceCandidates();
 		}
 
 		if (cmd == "x"){

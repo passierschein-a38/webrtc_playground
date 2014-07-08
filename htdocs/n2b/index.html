@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Native To Browser</title>	
+	<script type='text/javascript' src='jquery-1.11.1.js'></script>
+	<script type='text/javascript' src='adapter.js'></script>
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+var local_ice = [];
+
+var pc_constraints = {
+		mandatory: {
+			OfferToReceiveAudio: true,
+			OfferToReceiveVideo: false
+		}
+	};
+
+var pc_config = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};	
+
+var constraints = {
+				mandatory: {DtlsSrtpKeyAgreement: true}
+			};
+
+var pc = new RTCPeerConnection(pc_config, constraints);		
+
+pc.onicecandidate = function(event) {
+
+  if( event.candidate === null ) {
+	var data = JSON.stringify( local_ice );
+	$('#browser_ice').val( data );
+	$.post( "browser_ice.php", "q=" + data );
+	return;
+  }
+
+  local_ice.push( event.candidate );
+};
+
+pc.onaddstream = function(event) {	
+	var native_stream = document.getElementById( 'native_stream' );
+	attachMediaStream( native_stream, event.stream );
+}
+
+pc.onremovestream = function(event) {	
+	var native_stream = document.getElementById( 'native_stream' );
+	native_stream.src = '';	
+	nat
+}
+
+var pc_media_options = {
+			audio: true,
+			video: true
+	};
+
+var local_stream = 0;
+
+$.ajax({
+  url: "native_desc.php",
+  cache: false
+}).done(function( offer ) {
+    $( "#native_offer" ).append( offer );
+  });
+
+$.ajax({
+  url: "native_ice.php",
+  cache: false
+}).done(function( ice ) {
+    $( "#native_ice" ).append( ice );
+ });
+ 
+ 
+
+function error( what ){
+	alert( what );
+}
+</script>
+
+<table>
+<tr>
+<td>
+	<video id="native_stream" controls  autoplay></video> 
+</td>
+<td>
+	<video id="browser_stream" controls  autoplay></video> 
+</td>
+</tr>
+
+
+<tr>
+<td>
+	<p>Native Offer</p>
+	<div id="native_offer_div">
+		<textarea id="native_offer" rows="20" cols="60"></textarea>
+	</div>
+</td>
+<td>
+	<p>Native Ice</p>
+	<div id="native_ice_div">
+		<textarea id="native_ice" rows="20" cols="60"></textarea>
+	</div>
+</td>
+</tr>
+<td>
+	<p>Browser Answer</p>
+	<div id="browser_answer_div">
+		<textarea id="browser_answer" rows="20" cols="60"></textarea>
+	</div>
+</td>
+<td>
+	<p>Browser Ice</p>
+	<div id="browser_ice_div">
+		<textarea id="browser_ice" rows="20" cols="60"></textarea>
+	</div>
+</td>
+</tr>
+	
+</table>	
+
+<script type="text/javascript">
+
+getUserMedia(pc_media_options, function (stream) {			
+			
+			local_stream = stream;			
+			pc.addStream( local_stream );		
+			
+			var browser_stream = document.getElementById( 'browser_stream' );
+			attachMediaStream( browser_stream, stream );
+			
+			var offer = new RTCSessionDescription( JSON.parse( $('#native_offer').val() ) );
+		
+			 pc.setRemoteDescription( offer, function() {			 			 
+				pc.createAnswer(function(answer) {
+				
+					var json = JSON.stringify( answer );
+					$('#browser_answer').val( json );
+					
+					$.post( "browser_desc.php", "q=" + json );		
+
+									
+					pc.setLocalDescription(new RTCSessionDescription(answer), function() {												
+					
+						var remote_ice = JSON.parse( $('#native_ice' ).val() );
+						
+						for ( var i = 0; i < remote_ice.length; i = i + 1 ) {
+							var ice = new RTCIceCandidate(JSON.parse( remote_ice[ i ] ));
+							pc.addIceCandidate( ice );
+						}					
+					
+					}, error);
+				}, error);
+			}, error);
+  
+		}, error);
+  
+	
+</script>
+
+</body>
+
+</html>
